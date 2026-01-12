@@ -1,0 +1,7 @@
+{
+  "name": "Cronos Elite - Smart Watch Marketplace",
+  "description": "Uma plataforma premium de e-commerce para relógios inteligentes, focada em alta conversão, design minimalista e performance excepcional.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
