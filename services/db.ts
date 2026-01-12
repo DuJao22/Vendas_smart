@@ -3,7 +3,7 @@ import { Product, User, Order, DashboardStats, AuditLog, Review, Coupon, StoreSe
 import { INITIAL_PRODUCTS } from '../data/mockDb';
 
 /**
- * CRONOS ELITE - DATABASE SERVICE PRO (SISTEMA DE GESTÃO REAL)
+ * CRONOS ELITE - DATABASE SERVICE PRO
  * Sistema desenvolvido por João Layon
  * © João Layon – Todos os direitos reservados
  */
@@ -32,21 +32,24 @@ const DEFAULT_SETTINGS: StoreSettings = {
 
 export const db = {
   init: () => {
-    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-      const prods = INITIAL_PRODUCTS.map(p => ({ ...p, isActive: true, displayOrder: 0, slug: p.name.toLowerCase().replace(/ /g, '-') }));
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(prods));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
-    if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(['Sport', 'Business', 'Classic', 'Ultra']));
-    if (!localStorage.getItem(STORAGE_KEYS.COUPONS)) localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify([{ id: '1', code: 'CRONOS10', discount: 10, type: 'percentage', isActive: true }]));
-    if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
-    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([
-        { id: 'admin-1', name: 'João Admin', phone: 'dujao22', role: 'admin', createdAt: new Date().toISOString() }
-      ]));
+    try {
+      if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+        const prods = INITIAL_PRODUCTS.map(p => ({ ...p, isActive: true, displayOrder: 0, slug: p.name.toLowerCase().replace(/ /g, '-') }));
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(prods));
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
+      if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(['Sport', 'Business', 'Classic', 'Ultra']));
+      if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
+      if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([
+          { id: 'admin-1', name: 'João Admin', phone: 'dujao22', role: 'admin', createdAt: new Date().toISOString() }
+        ]));
+      }
+    } catch (e) {
+      console.error("Erro ao inicializar LocalStorage", e);
     }
   },
 
@@ -70,10 +73,10 @@ export const db = {
     const index = products.findIndex(p => p.id === product.id);
     if (index !== -1) {
       products[index] = product;
-      db.log('Edição de Produto', product.name);
+      db.log('Edição', product.name);
     } else {
       products.push(product);
-      db.log('Criação de Produto', product.name);
+      db.log('Criação', product.name);
     }
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   },
@@ -82,7 +85,7 @@ export const db = {
     const product = products.find(p => p.id === id);
     if (product) {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products.filter(p => p.id !== id)));
-      db.log('Exclusão de Produto', product.name);
+      db.log('Exclusão', product.name);
     }
   },
 
@@ -93,19 +96,20 @@ export const db = {
     if (index !== -1) {
       orders[index].status = status;
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-      db.log('Status de Pedido Alterado', orderId);
+      db.log('Status Pedido', orderId);
     }
   },
 
-  getSettings: (): StoreSettings => JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || JSON.stringify(DEFAULT_SETTINGS)),
+  getSettings: (): StoreSettings => {
+    const s = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    return s ? JSON.parse(s) : DEFAULT_SETTINGS;
+  },
   saveSettings: (settings: StoreSettings) => {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-    db.log('Ajustes de Sistema Alterados', 'Geral');
+    db.log('Ajustes', 'Sistema');
   },
 
-  // Fix: Added getUsers method to provide access to user records stored in localStorage
   getUsers: (): User[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]'),
-
   getStats: (): DashboardStats => {
     const orders = db.getOrders();
     const products = db.getProducts();
@@ -122,7 +126,10 @@ export const db = {
     };
   },
 
-  getCurrentUser: (): User | null => JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || 'null'),
+  getCurrentUser: (): User | null => {
+    const u = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    return u ? JSON.parse(u) : null;
+  },
   login: (u: string, p: string) => {
     if (u === 'dujao22' && p === '30031936') {
       const admin = { id: 'admin-1', name: 'João Layon', phone: 'dujao22', role: 'admin' as const, createdAt: new Date().toISOString() };
