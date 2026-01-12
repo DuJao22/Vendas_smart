@@ -3,7 +3,7 @@ import { Product, User, Order, DashboardStats, AuditLog, Review, Coupon, StoreSe
 import { INITIAL_PRODUCTS } from '../data/mockDb';
 
 /**
- * CRONOS ELITE - DATABASE SERVICE PRO
+ * CRONOS ELITE - DATABASE SERVICE PRO (ANTI-ERROR)
  * Sistema desenvolvido por João Layon
  * © João Layon – Todos os direitos reservados
  */
@@ -30,32 +30,55 @@ const DEFAULT_SETTINGS: StoreSettings = {
   scarcityEnabled: true
 };
 
+const safeParse = (key: string, defaultValue: any) => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (e) {
+    console.warn(`Erro ao ler chave ${key} do localStorage:`, e);
+    return defaultValue;
+  }
+};
+
+const safeSet = (key: string, value: any) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.error(`Erro ao salvar chave ${key} no localStorage:`, e);
+  }
+};
+
 export const db = {
   init: () => {
     try {
       if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-        const prods = INITIAL_PRODUCTS.map(p => ({ ...p, isActive: true, displayOrder: 0, slug: p.name.toLowerCase().replace(/ /g, '-') }));
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(prods));
+        const prods = INITIAL_PRODUCTS.map(p => ({ 
+          ...p, 
+          isActive: true, 
+          displayOrder: 0, 
+          slug: p.name.toLowerCase().replace(/ /g, '-') 
+        }));
+        safeSet(STORAGE_KEYS.PRODUCTS, prods);
       }
       if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
-        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
+        safeSet(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
       }
-      if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
-      if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(['Sport', 'Business', 'Classic', 'Ultra']));
-      if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
+      if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) safeSet(STORAGE_KEYS.ORDERS, []);
+      if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) safeSet(STORAGE_KEYS.CATEGORIES, ['Sport', 'Business', 'Classic', 'Ultra']);
+      if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) safeSet(STORAGE_KEYS.AUDIT_LOGS, []);
       if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([
+        safeSet(STORAGE_KEYS.USERS, [
           { id: 'admin-1', name: 'João Admin', phone: 'dujao22', role: 'admin', createdAt: new Date().toISOString() }
-        ]));
+        ]);
       }
     } catch (e) {
-      console.error("Erro ao inicializar LocalStorage", e);
+      console.error("Falha crítica na inicialização do DB:", e);
     }
   },
 
   log: (action: string, target: string) => {
     const user = db.getCurrentUser();
-    const logs: AuditLog[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS) || '[]');
+    const logs = safeParse(STORAGE_KEYS.AUDIT_LOGS, []);
     logs.unshift({
       id: Math.random().toString(36).substr(2, 9),
       userId: user?.id || 'system',
@@ -64,10 +87,10 @@ export const db = {
       target,
       timestamp: new Date().toISOString()
     });
-    localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(logs.slice(0, 100)));
+    safeSet(STORAGE_KEYS.AUDIT_LOGS, logs.slice(0, 100));
   },
 
-  getProducts: (): Product[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]'),
+  getProducts: (): Product[] => safeParse(STORAGE_KEYS.PRODUCTS, []),
   saveProduct: (product: Product) => {
     const products = db.getProducts();
     const index = products.findIndex(p => p.id === product.id);
@@ -78,38 +101,35 @@ export const db = {
       products.push(product);
       db.log('Criação', product.name);
     }
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    safeSet(STORAGE_KEYS.PRODUCTS, products);
   },
   deleteProduct: (id: string) => {
     const products = db.getProducts();
     const product = products.find(p => p.id === id);
     if (product) {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products.filter(p => p.id !== id)));
+      safeSet(STORAGE_KEYS.PRODUCTS, products.filter(p => p.id !== id));
       db.log('Exclusão', product.name);
     }
   },
 
-  getOrders: (): Order[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]'),
+  getOrders: (): Order[] => safeParse(STORAGE_KEYS.ORDERS, []),
   updateOrderStatus: (orderId: string, status: Order['status']) => {
     const orders = db.getOrders();
     const index = orders.findIndex(o => o.id === orderId);
     if (index !== -1) {
       orders[index].status = status;
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+      safeSet(STORAGE_KEYS.ORDERS, orders);
       db.log('Status Pedido', orderId);
     }
   },
 
-  getSettings: (): StoreSettings => {
-    const s = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    return s ? JSON.parse(s) : DEFAULT_SETTINGS;
-  },
+  getSettings: (): StoreSettings => safeParse(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS),
   saveSettings: (settings: StoreSettings) => {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    safeSet(STORAGE_KEYS.SETTINGS, settings);
     db.log('Ajustes', 'Sistema');
   },
 
-  getUsers: (): User[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]'),
+  getUsers: (): User[] => safeParse(STORAGE_KEYS.USERS, []),
   getStats: (): DashboardStats => {
     const orders = db.getOrders();
     const products = db.getProducts();
@@ -126,26 +146,27 @@ export const db = {
     };
   },
 
-  getCurrentUser: (): User | null => {
-    const u = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-    return u ? JSON.parse(u) : null;
-  },
+  getCurrentUser: (): User | null => safeParse(STORAGE_KEYS.CURRENT_USER, null),
   login: (u: string, p: string) => {
     if (u === 'dujao22' && p === '30031936') {
       const admin = { id: 'admin-1', name: 'João Layon', phone: 'dujao22', role: 'admin' as const, createdAt: new Date().toISOString() };
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(admin));
+      safeSet(STORAGE_KEYS.CURRENT_USER, admin);
       return admin;
     }
     return null;
   },
-  logout: () => localStorage.removeItem(STORAGE_KEYS.CURRENT_USER),
-  getCategories: (): string[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]'),
-  getLogs: (): AuditLog[] => JSON.parse(localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS) || '[]'),
+  logout: () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    } catch (e) {}
+  },
+  getCategories: (): string[] => safeParse(STORAGE_KEYS.CATEGORIES, ['Sport', 'Business', 'Classic', 'Ultra']),
+  getLogs: (): AuditLog[] => safeParse(STORAGE_KEYS.AUDIT_LOGS, []),
   createOrder: (order: any) => {
     const orders = db.getOrders();
     const newOrder = { ...order, id: `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`, createdAt: new Date().toISOString() };
     orders.push(newOrder);
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+    safeSet(STORAGE_KEYS.ORDERS, orders);
     return newOrder;
   }
 };
