@@ -1,26 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import CatalogPage from './pages/CatalogPage';
-import ProductDetailsPage from './pages/ProductDetailsPage';
-import CartPage from './pages/CartPage';
-import LoginPage from './pages/LoginPage';
-import AdminDashboard from './pages/AdminDashboard';
-import { Product, CartItem, User } from './types';
-import { db } from './services/db';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar.tsx';
+import Footer from './components/Footer.tsx';
+import HomePage from './pages/HomePage.tsx';
+import CatalogPage from './pages/CatalogPage.tsx';
+import ProductDetailsPage from './pages/ProductDetailsPage.tsx';
+import CartPage from './pages/CartPage.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import AdminDashboard from './pages/AdminDashboard.tsx';
+import { Product, CartItem, User } from './types.ts';
+import { db } from './services/db.ts';
 
 const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Inicializar "banco de dados"
     db.init();
-    
-    // Sincronizar usuário
     setUser(db.getCurrentUser());
 
     const savedCart = localStorage.getItem('cronos_cart');
@@ -75,7 +72,6 @@ const App: React.FC = () => {
       items: cart,
       total: cart.reduce((acc, i) => acc + (i.price * i.quantity), 0),
       status: 'pending',
-      // Fix: Adding missing required paymentMethod property
       paymentMethod: 'WhatsApp'
     });
     
@@ -89,10 +85,8 @@ const App: React.FC = () => {
     <Router>
       <div className="flex flex-col min-h-screen">
         <Routes>
-          {/* Rota de Admin não tem Navbar/Footer padrão da loja */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/login" element={<LoginPage />} />
-          
           <Route path="/*" element={
             <>
               <Navbar cartCount={cartCount} />
