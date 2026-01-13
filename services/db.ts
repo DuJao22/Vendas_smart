@@ -4,7 +4,6 @@ import { INITIAL_PRODUCTS } from '../data/mockDb.ts';
 
 /**
  * CRONOS ELITE - DATABASE SERVICE PRO (ANTI-ERROR)
- * Sistema desenvolvido por João Layon
  * © João Layon – Todos os direitos reservados
  */
 
@@ -17,8 +16,11 @@ const STORAGE_KEYS = {
   COUPONS: 'cronos_coupons',
   SETTINGS: 'cronos_settings',
   AUDIT_LOGS: 'cronos_audit_logs',
-  CURRENT_USER: 'cronos_current_user'
+  CURRENT_USER: 'cronos_current_user',
+  DB_VERSION: 'cronos_db_version'
 };
+
+const DB_VERSION = "4.0"; // Força atualização total das imagens no navegador do usuário
 
 const DEFAULT_SETTINGS: StoreSettings = {
   storeName: 'Cronos Elite',
@@ -35,7 +37,6 @@ const safeParse = (key: string, defaultValue: any) => {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
   } catch (e) {
-    console.warn(`Erro ao ler chave ${key} do localStorage:`, e);
     return defaultValue;
   }
 };
@@ -43,15 +44,15 @@ const safeParse = (key: string, defaultValue: any) => {
 const safeSet = (key: string, value: any) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Erro ao salvar chave ${key} no localStorage:`, e);
-  }
+  } catch (e) {}
 };
 
 export const db = {
   init: () => {
     try {
-      if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+      const currentVersion = localStorage.getItem(STORAGE_KEYS.DB_VERSION);
+      
+      if (currentVersion !== DB_VERSION || !localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
         const prods = INITIAL_PRODUCTS.map(p => ({ 
           ...p, 
           isActive: true, 
@@ -59,7 +60,9 @@ export const db = {
           slug: p.name.toLowerCase().replace(/ /g, '-') 
         }));
         safeSet(STORAGE_KEYS.PRODUCTS, prods);
+        localStorage.setItem(STORAGE_KEYS.DB_VERSION, DB_VERSION);
       }
+
       if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
         safeSet(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
       }
@@ -72,8 +75,13 @@ export const db = {
         ]);
       }
     } catch (e) {
-      console.error("Falha crítica na inicialização do DB:", e);
+      console.error("Erro no init do DB:", e);
     }
+  },
+
+  getProducts: (): Product[] => {
+    const products = safeParse(STORAGE_KEYS.PRODUCTS, []);
+    return products.length > 0 ? products : INITIAL_PRODUCTS;
   },
 
   log: (action: string, target: string) => {
@@ -90,46 +98,37 @@ export const db = {
     safeSet(STORAGE_KEYS.AUDIT_LOGS, logs.slice(0, 100));
   },
 
-  getProducts: (): Product[] => safeParse(STORAGE_KEYS.PRODUCTS, []),
   saveProduct: (product: Product) => {
     const products = db.getProducts();
     const index = products.findIndex(p => p.id === product.id);
     if (index !== -1) {
       products[index] = product;
-      db.log('Edição', product.name);
     } else {
       products.push(product);
-      db.log('Criação', product.name);
     }
     safeSet(STORAGE_KEYS.PRODUCTS, products);
   },
+  
   deleteProduct: (id: string) => {
     const products = db.getProducts();
-    const product = products.find(p => p.id === id);
-    if (product) {
-      safeSet(STORAGE_KEYS.PRODUCTS, products.filter(p => p.id !== id));
-      db.log('Exclusão', product.name);
-    }
+    safeSet(STORAGE_KEYS.PRODUCTS, products.filter(p => p.id !== id));
   },
 
   getOrders: (): Order[] => safeParse(STORAGE_KEYS.ORDERS, []),
+  
   updateOrderStatus: (orderId: string, status: Order['status']) => {
     const orders = db.getOrders();
     const index = orders.findIndex(o => o.id === orderId);
     if (index !== -1) {
       orders[index].status = status;
       safeSet(STORAGE_KEYS.ORDERS, orders);
-      db.log('Status Pedido', orderId);
     }
   },
 
   getSettings: (): StoreSettings => safeParse(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS),
-  saveSettings: (settings: StoreSettings) => {
-    safeSet(STORAGE_KEYS.SETTINGS, settings);
-    db.log('Ajustes', 'Sistema');
-  },
-
+  saveSettings: (settings: StoreSettings) => safeSet(STORAGE_KEYS.SETTINGS, settings),
   getUsers: (): User[] => safeParse(STORAGE_KEYS.USERS, []),
+  
   getStats: (): DashboardStats => {
     const orders = db.getOrders();
     const products = db.getProducts();
@@ -148,7 +147,6 @@ export const db = {
 
   getCurrentUser: (): User | null => safeParse(STORAGE_KEYS.CURRENT_USER, null),
   
-  // Login administrativo
   login: (u: string, p: string) => {
     if (u === 'dujao22' && p === '30031936') {
       const admin = { id: 'admin-1', name: 'João Layon', phone: 'dujao22', role: 'admin' as const, createdAt: new Date().toISOString() };
@@ -158,34 +156,22 @@ export const db = {
     return null;
   },
 
-  // Login/Cadastro rápido para clientes
   quickLogin: (name: string, phone: string) => {
     const users = safeParse(STORAGE_KEYS.USERS, []);
     let user = users.find((u: User) => u.phone === phone);
-    
     if (!user) {
-      user = {
-        id: 'u-' + Math.random().toString(36).substr(2, 9),
-        name,
-        phone,
-        role: 'user',
-        createdAt: new Date().toISOString()
-      };
+      user = { id: 'u-' + Math.random().toString(36).substr(2, 9), name, phone, role: 'user', createdAt: new Date().toISOString() };
       users.push(user);
       safeSet(STORAGE_KEYS.USERS, users);
     }
-    
     safeSet(STORAGE_KEYS.CURRENT_USER, user);
     return user;
   },
 
-  logout: () => {
-    try {
-      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
-    } catch (e) {}
-  },
+  logout: () => { localStorage.removeItem(STORAGE_KEYS.CURRENT_USER); },
   getCategories: (): string[] => safeParse(STORAGE_KEYS.CATEGORIES, ['Sport', 'Business', 'Classic', 'Ultra']),
   getLogs: (): AuditLog[] => safeParse(STORAGE_KEYS.AUDIT_LOGS, []),
+  
   createOrder: (order: any) => {
     const orders = db.getOrders();
     const newOrder = { ...order, id: `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`, createdAt: new Date().toISOString() };

@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { INITIAL_PRODUCTS, MOCK_REVIEWS } from '../data/mockDb';
+import { useParams } from 'react-router-dom';
+import { MOCK_REVIEWS } from '../data/mockDb';
+import { db } from '../services/db';
 import { Product } from '../types';
 
 interface ProductDetailsPageProps {
@@ -13,14 +14,21 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ addToCart }) =>
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showToast, setShowToast] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
-    const found = INITIAL_PRODUCTS.find(p => p.id === id);
+    const products = db.getProducts();
+    const found = products.find(p => p.id === id);
     if (found) setProduct(found);
     window.scrollTo(0, 0);
   }, [id]);
 
-  if (!product) return <div className="pt-40 text-center">Carregando...</div>;
+  if (!product) return (
+    <div className="min-h-screen pt-40 flex flex-col items-center justify-center space-y-4">
+      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Sincronizando Produto...</p>
+    </div>
+  );
 
   const handleAddToCart = () => {
     for(let i=0; i < quantity; i++) {
@@ -49,8 +57,16 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ addToCart }) =>
         <div className="grid lg:grid-cols-2 gap-20 items-start">
           {/* Gallery */}
           <div className="space-y-6">
-            <div className="rounded-[3rem] overflow-hidden shadow-2xl bg-slate-100">
-               <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
+            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl bg-slate-100 aspect-square">
+               <div className={`absolute inset-0 bg-slate-200 animate-pulse transition-opacity duration-500 flex items-center justify-center ${imgLoaded ? 'opacity-0' : 'opacity-100'}`}>
+                  <div className="w-10 h-10 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
+               </div>
+               <img 
+                src={product.image} 
+                alt={product.name} 
+                onLoad={() => setImgLoaded(true)}
+                className="w-full h-full object-cover" 
+               />
             </div>
             <div className="grid grid-cols-4 gap-4">
                {[1,2,3,4].map(i => (
@@ -143,7 +159,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ addToCart }) =>
         <div className="mt-32 border-t border-slate-100 pt-20">
            <h2 className="text-3xl font-black text-slate-900 mb-10">Especificações Técnicas</h2>
            <div className="grid md:grid-cols-2 gap-x-20 gap-y-4">
-              {Object.entries(product.specs).map(([key, val]) => (
+              {product.specs && Object.entries(product.specs).map(([key, val]) => (
                 <div key={key} className="flex items-center justify-between py-4 border-b border-slate-100">
                    <span className="text-slate-500 font-medium">{key}</span>
                    <span className="text-slate-900 font-bold">{val}</span>

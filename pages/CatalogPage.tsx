@@ -1,15 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import { INITIAL_PRODUCTS } from '../data/mockDb';
+import { db } from '../services/db';
+import { Product } from '../types';
 
 const CatalogPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const categories = ['All', 'Business', 'Sport', 'Classic', 'Ultra'];
 
+  useEffect(() => {
+    setAllProducts(db.getProducts());
+  }, []);
+
   const filteredProducts = activeCategory === 'All' 
-    ? INITIAL_PRODUCTS 
-    : INITIAL_PRODUCTS.filter(p => p.category === activeCategory);
+    ? allProducts 
+    : allProducts.filter(p => p.category === activeCategory);
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-slate-50">
