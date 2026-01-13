@@ -21,13 +21,12 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Sensores': 'BioTracker 4.0, GPS Dual-Band',
       'Compatibilidade': 'iOS & Android'
     },
-    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1508685096489-7aac291bd5b3?q=80&w=800&auto=format&fit=crop',
     category: 'Business',
     stock: 12,
     rating: 4.9,
     reviewsCount: 124,
     isBestseller: true,
-    // Fix: Adding missing required properties
     isActive: true,
     slug: 'cronos-horizon-g3',
     displayOrder: 1
@@ -51,13 +50,12 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Tela': 'TFT 1.43" Anti-risco',
       'Bateria': '10 dias em uso intenso'
     },
-    image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1434493907317-a46b53b81846?q=80&w=800&auto=format&fit=crop',
     category: 'Sport',
     stock: 5,
     rating: 4.8,
     reviewsCount: 89,
     isNew: true,
-    // Fix: Adding missing required properties
     isActive: true,
     slug: 'stealth-velocity-pro',
     displayOrder: 2
@@ -81,12 +79,11 @@ export const INITIAL_PRODUCTS: Product[] = [
       'GPS': 'L1 + L5 Quad-Satellite',
       'Tela': 'OLED 2.0" 1000 nits'
     },
-    image: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=800&auto=format&fit=crop',
     category: 'Ultra',
     stock: 8,
     rating: 5.0,
     reviewsCount: 42,
-    // Fix: Adding missing required properties
     isActive: true,
     slug: 'titan-force-ultra',
     displayOrder: 3
@@ -110,12 +107,11 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Display': 'Circular 1.28"',
       'Cor': 'Marfim / Ouro Rosé'
     },
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1544117518-30dd5ff7a4b0?q=80&w=800&auto=format&fit=crop',
     category: 'Classic',
     stock: 15,
     rating: 4.7,
     reviewsCount: 56,
-    // Fix: Adding missing required properties
     isActive: true,
     slug: 'elegance-ivory-smart',
     displayOrder: 4
@@ -130,7 +126,6 @@ export const MOCK_REVIEWS: Review[] = [
     comment: 'O Horizon G3 superou todas as minhas expectativas. A bateria realmente dura muito e o design no pulso é impecável. Entrega muito rápida.',
     date: '15 de Outubro, 2023',
     avatar: 'https://i.pravatar.cc/150?u=r1',
-    // Fix: Adding missing required properties
     productId: '1',
     isVisible: true
   },
@@ -141,7 +136,6 @@ export const MOCK_REVIEWS: Review[] = [
     comment: 'Finalmente um smartwatch que não parece um brinquedo de plástico. O Elegance Ivory é lindo e as funções de saúde são bem precisas.',
     date: '02 de Novembro, 2023',
     avatar: 'https://i.pravatar.cc/150?u=r2',
-    // Fix: Adding missing required properties
     productId: '4',
     isVisible: true
   },
@@ -152,7 +146,6 @@ export const MOCK_REVIEWS: Review[] = [
     comment: 'Comprei o Velocity Pro para correr e o GPS é fantástico. Só senti falta de mais opções de pulseira na caixa.',
     date: '20 de Outubro, 2023',
     avatar: 'https://i.pravatar.cc/150?u=r3',
-    // Fix: Adding missing required properties
     productId: '2',
     isVisible: true
   }

@@ -1,6 +1,6 @@
 
-import { Product, User, Order, DashboardStats, AuditLog, Review, Coupon, StoreSettings } from '../types';
-import { INITIAL_PRODUCTS } from '../data/mockDb';
+import { Product, User, Order, DashboardStats, AuditLog, Review, Coupon, StoreSettings } from '../types.ts';
+import { INITIAL_PRODUCTS } from '../data/mockDb.ts';
 
 /**
  * CRONOS ELITE - DATABASE SERVICE PRO (ANTI-ERROR)
@@ -147,6 +147,8 @@ export const db = {
   },
 
   getCurrentUser: (): User | null => safeParse(STORAGE_KEYS.CURRENT_USER, null),
+  
+  // Login administrativo
   login: (u: string, p: string) => {
     if (u === 'dujao22' && p === '30031936') {
       const admin = { id: 'admin-1', name: 'João Layon', phone: 'dujao22', role: 'admin' as const, createdAt: new Date().toISOString() };
@@ -155,6 +157,28 @@ export const db = {
     }
     return null;
   },
+
+  // Login/Cadastro rápido para clientes
+  quickLogin: (name: string, phone: string) => {
+    const users = safeParse(STORAGE_KEYS.USERS, []);
+    let user = users.find((u: User) => u.phone === phone);
+    
+    if (!user) {
+      user = {
+        id: 'u-' + Math.random().toString(36).substr(2, 9),
+        name,
+        phone,
+        role: 'user',
+        createdAt: new Date().toISOString()
+      };
+      users.push(user);
+      safeSet(STORAGE_KEYS.USERS, users);
+    }
+    
+    safeSet(STORAGE_KEYS.CURRENT_USER, user);
+    return user;
+  },
+
   logout: () => {
     try {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
