@@ -88,23 +88,6 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Trust Badges */}
-      <section className="py-20 bg-slate-950">
-        <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-10">
-          {[
-            { label: 'Frete Grátis', sub: 'Para todo Brasil' },
-            { label: '1 Ano de Garantia', sub: 'Suporte especializado' },
-            { label: '7 Dias para Testar', sub: 'Reembolso garantido' },
-            { label: 'Pagamento Seguro', sub: 'Certificado SSL 256bit' }
-          ].map((item, i) => (
-            <div key={i} className="text-center space-y-2">
-              <div className="text-white font-bold text-lg uppercase tracking-tighter">{item.label}</div>
-              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{item.sub}</div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 };
