@@ -65,13 +65,20 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ addToCart }) =>
                 src={product.image} 
                 alt={product.name} 
                 onLoad={() => setImgLoaded(true)}
-                className="w-full h-full object-cover" 
+                fetchPriority="high"
+                decoding="async"
+                className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
                />
             </div>
             <div className="grid grid-cols-4 gap-4">
                {[1,2,3,4].map(i => (
                  <div key={i} className="aspect-square rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
-                    <img src={product.image} className="w-full h-full object-cover" alt="Detail" />
+                    <img 
+                      src={product.image} 
+                      className="w-full h-full object-cover" 
+                      alt={`Detalhe ${i}`} 
+                      loading="lazy"
+                    />
                  </div>
                ))}
             </div>
@@ -182,7 +189,12 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ addToCart }) =>
               {MOCK_REVIEWS.map(rev => (
                 <div key={rev.id} className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
                    <div className="flex items-center space-x-4">
-                      <img src={rev.avatar} alt={rev.userName} className="w-12 h-12 rounded-full border-2 border-white shadow-sm" />
+                      <img 
+                        src={rev.avatar} 
+                        alt={rev.userName} 
+                        className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
+                        loading="lazy"
+                      />
                       <div>
                         <div className="font-bold text-slate-900">{rev.userName}</div>
                         <div className="text-xs text-slate-400">{rev.date}</div>

@@ -1,6 +1,7 @@
 
 import { Product, Review } from '../types';
 
+// Otimização: URLs de alta conversão com foco em detalhes do produto
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '1',
@@ -21,7 +22,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Sensores': 'BioTracker 4.0, GPS Dual-Band',
       'Compatibilidade': 'iOS & Android'
     },
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop&fm=webp',
     category: 'Business',
     stock: 12,
     rating: 4.9,
@@ -50,7 +51,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Tela': 'TFT 1.43" Anti-risco',
       'Bateria': '10 dias em uso intenso'
     },
-    image: 'https://images.unsplash.com/photo-1544117518-30dd5ff7a4b0?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=800&auto=format&fit=crop&fm=webp',
     category: 'Sport',
     stock: 5,
     rating: 4.8,
@@ -79,7 +80,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'GPS': 'L1 + L5 Quad-Satellite',
       'Tela': 'OLED 2.0" 1000 nits'
     },
-    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1617043786394-f977fa12eddf?q=80&w=800&auto=format&fit=crop&fm=webp',
     category: 'Ultra',
     stock: 8,
     rating: 5.0,
@@ -107,7 +108,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Display': 'Circular 1.28"',
       'Cor': 'Marfim / Ouro Rosé'
     },
-    image: 'https://images.unsplash.com/photo-1508685096489-7aac291bd5b3?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1544117518-30dd5ff7a4b0?q=80&w=800&auto=format&fit=crop&fm=webp',
     category: 'Classic',
     stock: 15,
     rating: 4.7,

@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       <Link to={`/produto/${product.id}`} className="block relative aspect-square bg-slate-50 overflow-hidden">
-        {/* Skeleton Loader Background - Always behind the image */}
+        {/* Skeleton Loader Background */}
         <div className={`absolute inset-0 bg-slate-200 animate-pulse transition-opacity duration-700 flex items-center justify-center ${imgLoaded ? 'opacity-0' : 'opacity-100'}`}>
            <div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
         </div>
@@ -38,7 +38,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={product.name} 
           onLoad={() => setImgLoaded(true)}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 relative z-10" 
+          decoding="async"
+          className={`w-full h-full object-cover group-hover:scale-110 transition-all duration-700 relative z-10 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-20"></div>
       </Link>
