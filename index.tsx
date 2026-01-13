@@ -8,10 +8,9 @@ import App from './App';
  * © João Layon – Todos os direitos reservados
  */
 
-const mountApp = () => {
-  const rootElement = document.getElementById('root');
-  if (!rootElement) return;
+const rootElement = document.getElementById('root');
 
+if (rootElement) {
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
@@ -20,19 +19,13 @@ const mountApp = () => {
       </React.StrictMode>
     );
   } catch (err) {
-    console.error("Erro fatal ao montar aplicação React:", err);
+    console.error("Erro ao montar aplicação:", err);
     rootElement.innerHTML = `
-      <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-center; background: #050505; color: white; font-family: sans-serif; text-align: center; padding: 20px;">
-        <h1 style="color: #2563eb;">Cronos Elite</h1>
-        <p>Ocorreu um erro ao carregar a aplicação.</p>
-        <button onclick="window.location.reload()" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Tentar Novamente</button>
+      <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050505; color: white; font-family: sans-serif; text-align: center; padding: 20px;">
+        <h1 style="color: #2563eb; margin-bottom: 10px;">Cronos Elite</h1>
+        <p style="color: #64748b;">Ocorreu uma falha no carregamento dos módulos.</p>
+        <button onclick="window.location.reload()" style="margin-top: 20px; background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: bold;">Recarregar Sistema</button>
       </div>
     `;
   }
-};
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
-} else {
-  mountApp();
 }
