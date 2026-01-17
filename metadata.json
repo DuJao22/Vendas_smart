@@ -1,7 +1,8 @@
 {
-  "name": "Cronos Elite - Smart Watch Marketplace",
-  "description": "Uma plataforma premium de e-commerce para relógios inteligentes, focada em alta conversão, design minimalista e performance excepcional.",
+  "name": "D22 ELITE - Future Pulse",
+  "description": "Distribuidora oficial de wearables de alta performance. O futuro no seu pulso.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "microphone"
   ]
 }

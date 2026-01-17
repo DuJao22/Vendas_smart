@@ -13,7 +13,8 @@ export interface Product {
   longDescription: string;
   features: string[];
   specs: { [key: string]: string };
-  image: string;
+  image: string; // Imagem principal para cards
+  gallery: string[]; // Mínimo 5 imagens reais
   category: string;
   stock: number;
   rating: number;
